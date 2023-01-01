@@ -1,0 +1,20 @@
+[package]
+name = "axum_login_mvp"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.68"
+argon2 = "0.4.1"
+axum = "0.6.1"
+axum-login = { git = "https://github.com/dsaghliani/axum-login" }
+maud = { path = "../maud/maud", features = ["axum"] }
+rand = { version = "0.8.5", features = ["min_const_gen"] }
+serde = { version = "1.0.151", features = ["derive"] }
+thiserror = "1.0.38"
+tokio = { version = "1.23.0", features = ["full"] }
+tower = "0.4.13"
+tracing = "0.1.37"
+tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
