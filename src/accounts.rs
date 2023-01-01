@@ -16,7 +16,7 @@ use axum_login::{
 pub fn build_router() -> Router {
     Router::new()
         .route("/account", get(account::get_current_user))
-        .route_layer(RequireAuthorizationLayer::<AuthUser, Role>::login())
+        .route_layer(RequireAuthorizationLayer::<AuthUser, ()>::login())
         .route(
             "/register",
             get(register::get_registration_page).post(register::create_user),
@@ -24,16 +24,15 @@ pub fn build_router() -> Router {
         .route("/login", get(login::get_login_page).post(login::login_user))
 }
 
-pub type Auth = AuthContext<AuthUser, AuthMemoryStore<AuthUser>, Role>;
+pub type Auth = AuthContext<AuthUser, AuthMemoryStore<AuthUser>, ()>;
 
 #[derive(Clone, Debug)]
 pub struct AuthUser {
     pub id: i32,
     pub password_hash: String,
-    pub role: Role,
 }
 
-impl AuthUserTrait<Role> for AuthUser {
+impl AuthUserTrait<()> for AuthUser {
     fn get_id(&self) -> String {
         format!("{}", self.id)
     }
@@ -41,18 +40,6 @@ impl AuthUserTrait<Role> for AuthUser {
     fn get_password_hash(&self) -> SecretVec<u8> {
         SecretVec::new(self.password_hash.clone().into())
     }
-
-    fn get_role(&self) -> Option<Role> {
-        Some(self.role)
-    }
-}
-
-#[allow(dead_code)]
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Debug)]
-pub enum Role {
-    User,
-    Mod,
-    Admin,
 }
 
 async fn hash_password(password: String) -> anyhow::Result<String> {

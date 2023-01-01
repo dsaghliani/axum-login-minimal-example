@@ -1,6 +1,5 @@
 use super::hash_password;
 use super::{Auth, AuthUser};
-use crate::accounts::Role;
 use crate::errors::Error;
 use anyhow::anyhow;
 use axum::{
@@ -29,7 +28,6 @@ pub async fn create_user(
     let user = AuthUser {
         id: 0,
         password_hash,
-        role: Role::User,
     };
 
     auth_ctx

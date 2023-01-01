@@ -2,7 +2,6 @@
 
 use super::Auth;
 use super::{verify_password, AuthUser};
-use crate::accounts::Role;
 use crate::errors::Error;
 use anyhow::anyhow;
 use axum::{
@@ -23,7 +22,6 @@ pub async fn login_user(
     let user = AuthUser {
         id: 0,
         password_hash: "$argon2id$v=19$m=4096,t=3,p=1$L0MVanZGzDvqdp+3uJiHDg$d0R/Bac3IXudaqTIp4d4wBJaSCghXkcuU6ESy1c0JVc".into(),
-        role: Role::User,
     };
 
     verify_password(data.password, user.password_hash.clone()).await?;
