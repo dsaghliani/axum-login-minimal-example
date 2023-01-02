@@ -1,7 +1,6 @@
 use super::AuthUser;
 use crate::errors::Error;
-use axum::Extension;
-use maud::Markup;
+use axum::{response::IntoResponse, Extension};
 
 struct User {
     username: String,
@@ -10,7 +9,7 @@ struct User {
 #[allow(clippy::unused_async)]
 pub async fn get_current_user(
     Extension(auth_user): Extension<AuthUser>,
-) -> Result<Markup, Error> {
+) -> Result<impl IntoResponse, Error> {
     tracing::debug!("Logged in as {auth_user:#?}");
 
     let user = User {
@@ -22,11 +21,24 @@ pub async fn get_current_user(
 
 mod view {
     use super::User;
-    use maud::{html, Markup};
+    use axum::{
+        http::{header, HeaderMap, HeaderValue},
+        response::IntoResponse,
+    };
 
-    pub(super) fn render(user: &User) -> Markup {
-        html! {
-            h1 { "Welcome, " (user.username) "." }
-        }
+    pub(super) fn render(user: &User) -> impl IntoResponse {
+        let body = format!(
+            r#"
+            <h1>Welcome, {}!</h1>
+        "#,
+            user.username
+        );
+
+        let mut headers = HeaderMap::new();
+        headers.insert(
+            header::CONTENT_TYPE,
+            HeaderValue::from_static("text/html; charset=utf-8"),
+        );
+        (headers, body).into_response()
     }
 }

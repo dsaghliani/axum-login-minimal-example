@@ -20,7 +20,7 @@ pub struct CreateUser {
 pub async fn create_user(
     mut auth_ctx: Auth,
     Form(data): Form<CreateUser>,
-) -> Result<Redirect, Error> {
+) -> Result<impl IntoResponse, Error> {
     let password_hash = hash_password(data.password).await?;
 
     tracing::debug!("Password hash: {password_hash}");
@@ -44,19 +44,28 @@ pub async fn get_registration_page() -> impl IntoResponse {
 }
 
 mod view {
-    use maud::html;
-    use maud::Markup;
+    use axum::{
+        http::{header, HeaderMap, HeaderValue},
+        response::IntoResponse,
+    };
 
-    pub(super) fn render() -> Markup {
-        html! {
-            h1 { "Sign Up" }
-            form method="POST" action="/register" {
-                div {
-                    label for="password" { "Password:" }
-                    input type="password" name="password";
-                }
-                input type="submit" value="Sign Up";
-            }
-        }
+    pub(super) fn render() -> impl IntoResponse {
+        let body = r#"
+            <h1>Sign Up</h1>
+            <form method="POST" action="/register">
+                <div>
+                    <label for="password">Password:</label>
+                    <input type="password" name="password">
+                </div>
+                <input type="submit" value="Sign Up">
+            </form>
+        "#;
+
+        let mut headers = HeaderMap::new();
+        headers.insert(
+            header::CONTENT_TYPE,
+            HeaderValue::from_static("text/html; charset=utf-8"),
+        );
+        (headers, body).into_response()
     }
 }

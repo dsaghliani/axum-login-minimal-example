@@ -10,7 +10,6 @@ anyhow = "1.0.68"
 argon2 = "0.4.1"
 axum = "0.6.1"
 axum-login = { git = "https://github.com/dsaghliani/axum-login" }
-maud = { path = "../maud/maud", features = ["axum"] }
 rand = { version = "0.8.5", features = ["min_const_gen"] }
 serde = { version = "1.0.151", features = ["derive"] }
 thiserror = "1.0.38"

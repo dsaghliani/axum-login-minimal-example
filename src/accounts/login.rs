@@ -18,7 +18,7 @@ pub struct LoginUser {
 pub async fn login_user(
     mut auth_ctx: Auth,
     Form(data): Form<LoginUser>,
-) -> Result<Redirect, Error> {
+) -> Result<impl IntoResponse, Error> {
     let user = AuthUser {
         id: 0,
         password_hash: "$argon2id$v=19$m=4096,t=3,p=1$L0MVanZGzDvqdp+3uJiHDg$d0R/Bac3IXudaqTIp4d4wBJaSCghXkcuU6ESy1c0JVc".into(),
@@ -38,19 +38,28 @@ pub async fn get_login_page() -> impl IntoResponse {
 }
 
 mod view {
-    use maud::html;
-    use maud::Markup;
+    use axum::{
+        http::{header, HeaderMap, HeaderValue},
+        response::IntoResponse,
+    };
 
-    pub(super) fn render() -> Markup {
-        html! {
-            h1 { "Sign In" }
-            form method="POST" action="/login" {
-                div {
-                    label for="password" { "Password:" }
-                    input type="password" name="password";
-                }
-                input type="submit" value="Sign In";
-            }
-        }
+    pub(super) fn render() -> impl IntoResponse {
+        let body = r#"
+            <h1>Sign In</h1>
+            <form method="POST" action="/login">
+                <div>
+                    <label for="password">Password:</label>
+                    <input type="password" name="password">
+                </div>
+                <input type="submit" value="Sign In">
+            </form>
+        "#;
+
+        let mut headers = HeaderMap::new();
+        headers.insert(
+            header::CONTENT_TYPE,
+            HeaderValue::from_static("text/html; charset=utf-8"),
+        );
+        (headers, body).into_response()
     }
 }
